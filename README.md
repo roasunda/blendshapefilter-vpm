@@ -17,7 +17,7 @@ Unityメニューの `Tools > BlendShape Filter` から起動します。
 - **Target**: 対象の `SkinnedMeshRenderer` を指定、または `Use Selected` でHierarchyの選択から自動取得
 - **Search**: BlendShape名を部分一致・大文字小文字区別なしで検索
 - **Face Part**: 名前から推定した顔の部位（Eye / Brow / Mouth など）でワンクリック絞り込み。Eye・Mouthはさらに細かい小分類も選べる
-- **Non-Zero / ★ Favorites**: Weightが0以外のものだけ、お気に入り登録したものだけに絞り込み
+- **Non-Zero**: Weightが0以外のものだけに絞り込み。Weightが0以外の行は色分けでも強調表示される
 - **Weight編集**: Slider・数値入力ともUndo対応
 - **Reset / Reset Visible**: 個別、または表示中のBlendShapeだけをまとめて0に戻す
 

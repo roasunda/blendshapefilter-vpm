@@ -14,10 +14,6 @@ namespace BlendShapeFilter
         private const string UndoResetWeight = "Reset BlendShape";
         private const string UndoResetVisible = "Reset Visible BlendShapes";
 
-        private const string FavoriteOnLabel = "★";
-        private const string FavoriteOffLabel = "☆";
-
-        private const float FavoriteColumnWidth = 22f;
         private const float IndexColumnWidth = 42f;
         private const float NameColumnWidth = 160f;
         private const float ResetColumnWidth = 52f;
@@ -33,7 +29,6 @@ namespace BlendShapeFilter
 
         private string _search = string.Empty;
         private bool _filterNonZero;
-        private bool _filterFavorites;
 
         /// <summary>Face part filter. Null means every part is shown.</summary>
         private BlendShapeCategory? _categoryFilter;
@@ -52,8 +47,6 @@ namespace BlendShapeFilter
 
         /// <summary>The subset that passed every filter, in the current sort order.</summary>
         private readonly List<BlendShapeData> _visibleShapes = new List<BlendShapeData>();
-
-        private readonly BlendShapeFavoritesStore _favorites = new BlendShapeFavoritesStore();
 
         /// <summary>How many BlendShapes fall into each face part, indexed by category.</summary>
         private readonly int[] _categoryCounts = new int[BlendShapeCategoryClassifier.CategoryCount];
@@ -119,15 +112,12 @@ namespace BlendShapeFilter
         }
 
         /// <summary>
-        /// Runs when the target Renderer or its Mesh changes: re-reads the BlendShapes and
-        /// loads the favorites of the new Mesh.
+        /// Runs when the target Renderer or its Mesh changes: re-reads the BlendShapes.
         /// </summary>
         private void InitializeTarget()
         {
             _cachedMesh = BlendShapeFilterUtility.GetMesh(_renderer);
             BlendShapeFilterUtility.CollectBlendShapes(_renderer, _shapes);
-            _favorites.Load(_cachedMesh);
-            ApplyFavorites();
             RecountCategories();
             _scrollPosition = Vector2.zero;
             _visibleListDirty = true;
@@ -146,17 +136,8 @@ namespace BlendShapeFilter
             }
 
             BlendShapeFilterUtility.CollectBlendShapes(_renderer, _shapes);
-            ApplyFavorites();
             RecountCategories();
             _visibleListDirty = true;
-        }
-
-        private void ApplyFavorites()
-        {
-            for (int i = 0; i < _shapes.Count; i++)
-            {
-                _shapes[i].IsFavorite = _favorites.IsFavorite(_shapes[i].Index);
-            }
         }
 
         /// <summary>
@@ -193,7 +174,7 @@ namespace BlendShapeFilter
         }
 
         /// <summary>
-        /// Applies Search, face part, Non-Zero and Favorites as AND conditions, then sorts.
+        /// Applies Search, face part and Non-Zero as AND conditions, then sorts.
         /// </summary>
         private void RebuildVisibleList()
         {
@@ -220,11 +201,6 @@ namespace BlendShapeFilter
                 }
 
                 if (_filterNonZero && !BlendShapeFilterUtility.IsNonZero(data.Weight))
-                {
-                    continue;
-                }
-
-                if (_filterFavorites && !data.IsFavorite)
                 {
                     continue;
                 }
@@ -402,7 +378,7 @@ namespace BlendShapeFilter
         }
 
         /// <summary>
-        /// Switching the target reloads its BlendShapes and favorites from scratch.
+        /// Switching the target reloads its BlendShapes from scratch.
         /// </summary>
         private void SetTarget(SkinnedMeshRenderer renderer)
         {
@@ -432,8 +408,6 @@ namespace BlendShapeFilter
                 EditorGUI.BeginChangeCheck();
                 _filterNonZero = GUILayout.Toggle(
                     _filterNonZero, "Non-Zero", EditorStyles.miniButton, GUILayout.Width(80f));
-                _filterFavorites = GUILayout.Toggle(
-                    _filterFavorites, FavoriteOnLabel + " Favorites", EditorStyles.miniButton, GUILayout.Width(100f));
                 if (EditorGUI.EndChangeCheck())
                 {
                     _visibleListDirty = true;
@@ -470,7 +444,7 @@ namespace BlendShapeFilter
         /// Pressing a part shows only its BlendShapes; pressing the active button again, or
         /// All, clears the filter. Parts the Mesh has none of are not shown.
         /// Boxed so the filter controls read as one group, separate from Search above and
-        /// Non-Zero/Favorites below.
+        /// Non-Zero below.
         /// </summary>
         private void DrawCategoryButtons()
         {
@@ -777,18 +751,12 @@ namespace BlendShapeFilter
                 EditorGUI.DrawRect(barRect, NonZeroIndicatorColor);
             }
 
-            Rect favoriteRect = new Rect(
-                rowRect.x + 2f + RowIndent, rowRect.y, FavoriteColumnWidth, rowRect.height);
-            Rect indexRect = new Rect(favoriteRect.xMax, rowRect.y, IndexColumnWidth, rowRect.height);
+            Rect indexRect = new Rect(
+                rowRect.x + 2f + RowIndent, rowRect.y, IndexColumnWidth, rowRect.height);
             Rect nameRect = new Rect(indexRect.xMax + 2f, rowRect.y, NameColumnWidth, rowRect.height);
             Rect resetRect = new Rect(rowRect.xMax - ResetColumnWidth - 2f, rowRect.y, ResetColumnWidth, rowRect.height);
             float weightWidth = Mathf.Max(60f, resetRect.x - nameRect.xMax - 6f);
             Rect weightRect = new Rect(nameRect.xMax + 2f, rowRect.y, weightWidth, rowRect.height);
-
-            if (GUI.Button(favoriteRect, data.IsFavorite ? FavoriteOnLabel : FavoriteOffLabel, EditorStyles.label))
-            {
-                ToggleFavorite(data);
-            }
 
             // The Mesh internal index, unaffected by the current sort order.
             GUI.Label(indexRect, "#" + data.Index, EditorStyles.miniLabel);
@@ -890,20 +858,6 @@ namespace BlendShapeFilter
         private void DrawFooter()
         {
             EditorGUILayout.LabelField("Showing: " + _visibleShapes.Count + " / " + _shapes.Count);
-        }
-
-        /// <summary>
-        /// Favorites are a view preference rather than scene data, so they are not undoable.
-        /// </summary>
-        private void ToggleFavorite(BlendShapeData data)
-        {
-            _favorites.Toggle(data.Index);
-            data.IsFavorite = _favorites.IsFavorite(data.Index);
-
-            if (_filterFavorites)
-            {
-                _visibleListDirty = true;
-            }
         }
 
         /// <summary>

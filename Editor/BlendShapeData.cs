@@ -15,9 +15,6 @@ namespace BlendShapeFilter
         /// <summary>Current weight on the SkinnedMeshRenderer.</summary>
         public float Weight;
 
-        /// <summary>Favorite state mirrored from the store. Persistence is owned by BlendShapeFavoritesStore.</summary>
-        public bool IsFavorite;
-
         /// <summary>Face part guessed from the name. Display grouping only.</summary>
         public BlendShapeCategory Category;
 
@@ -29,7 +26,6 @@ namespace BlendShapeFilter
             Index = index;
             Name = name;
             Weight = weight;
-            IsFavorite = false;
             Category = BlendShapeCategoryClassifier.Classify(name);
             SubCategory = BlendShapeCategoryClassifier.ClassifySub(Category, name);
         }
