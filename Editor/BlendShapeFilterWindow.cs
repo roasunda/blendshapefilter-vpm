@@ -23,6 +23,7 @@ namespace BlendShapeFilter
         private const float ResetColumnWidth = 52f;
         private const float ScrollBarWidth = 16f;
         private const float RowIndent = 14f;
+        private const float NonZeroBarWidth = 3f;
 
         /// <summary>
         /// The target survives a domain reload. Search, filters and sort are session state
@@ -81,6 +82,7 @@ namespace BlendShapeFilter
         private bool _displayRowsDirty = true;
         private GUIStyle _groupHeaderStyle;
         private GUIStyle _selectedChipStyle;
+        private GUIStyle _nonZeroNameStyle;
 
         private Mesh _cachedMesh;
         private bool _visibleListDirty = true;
@@ -766,6 +768,15 @@ namespace BlendShapeFilter
             // without re-reading every BlendShape of the Mesh each frame.
             data.Weight = _renderer.GetBlendShapeWeight(data.Index);
 
+            // Highlighting a non-zero weight is purely a visual cue: it never affects which
+            // rows are shown, that is still what the Non-Zero filter chip is for.
+            bool isNonZero = BlendShapeFilterUtility.IsNonZero(data.Weight);
+            if (isNonZero)
+            {
+                Rect barRect = new Rect(fullRect.x, fullRect.y, NonZeroBarWidth, fullRect.height);
+                EditorGUI.DrawRect(barRect, NonZeroIndicatorColor);
+            }
+
             Rect favoriteRect = new Rect(
                 rowRect.x + 2f + RowIndent, rowRect.y, FavoriteColumnWidth, rowRect.height);
             Rect indexRect = new Rect(favoriteRect.xMax, rowRect.y, IndexColumnWidth, rowRect.height);
@@ -781,7 +792,7 @@ namespace BlendShapeFilter
 
             // The Mesh internal index, unaffected by the current sort order.
             GUI.Label(indexRect, "#" + data.Index, EditorStyles.miniLabel);
-            GUI.Label(nameRect, new GUIContent(data.Name, data.Name));
+            GUI.Label(nameRect, new GUIContent(data.Name, data.Name), isNonZero ? NonZeroNameStyle : EditorStyles.label);
 
             // Opening the Undo group before the slider handles the event means every record
             // made during the drag lands in one group and collapses into a single Undo step.
@@ -845,6 +856,34 @@ namespace BlendShapeFilter
                 return EditorGUIUtility.isProSkin
                     ? new Color(1f, 1f, 1f, 0.03f)
                     : new Color(0f, 0f, 0f, 0.03f);
+            }
+        }
+
+        /// <summary>Bold, tinted label for the name of a BlendShape whose weight is non-zero.</summary>
+        private GUIStyle NonZeroNameStyle
+        {
+            get
+            {
+                if (_nonZeroNameStyle == null)
+                {
+                    _nonZeroNameStyle = new GUIStyle(EditorStyles.label);
+                    _nonZeroNameStyle.fontStyle = FontStyle.Bold;
+                }
+
+                // isProSkin can flip while the window stays open (a light/dark toggle), so the
+                // color itself is refreshed every time rather than baked in once.
+                _nonZeroNameStyle.normal.textColor = NonZeroIndicatorColor;
+                return _nonZeroNameStyle;
+            }
+        }
+
+        private static Color NonZeroIndicatorColor
+        {
+            get
+            {
+                return EditorGUIUtility.isProSkin
+                    ? new Color(1.00f, 0.70f, 0.25f, 1f)
+                    : new Color(0.80f, 0.45f, 0.00f, 1f);
             }
         }
 

@@ -1,7 +1,7 @@
 {
   "name": "com.roasun.blendshapefilter",
   "displayName": "BlendShape Filter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "unity": "2019.4",
   "description": "Search, filter and edit BlendShapes in the Unity Editor. Find the shape key you need on a large avatar mesh in seconds instead of scrolling the Inspector.",
   "author": {

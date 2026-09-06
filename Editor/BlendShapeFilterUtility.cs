@@ -91,7 +91,10 @@ namespace BlendShapeFilter
             PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
         }
 
-        /// <summary>Non-Zero filter test.</summary>
+        /// <summary>
+        /// Non-Zero filter test. Also drives the row color highlight, so a BlendShape that is
+        /// currently doing anything stands out even when the Non-Zero filter itself is off.
+        /// </summary>
         public static bool IsNonZero(float weight)
         {
             return Mathf.Abs(weight) > WeightEpsilon;
