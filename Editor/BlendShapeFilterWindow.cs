@@ -658,8 +658,13 @@ namespace BlendShapeFilter
             float rowHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             float contentHeight = _displayRows.Count * rowHeight;
 
+            // The height hint here is a minimum, not a target: passing the full window height
+            // would force the viewport to that size regardless of how tall the header above it
+            // is, pushing the bottom rows and the footer off the window with no way to scroll
+            // to them. A one-row minimum plus ExpandHeight lets the layout system give this
+            // exactly the space actually left over, whatever the header ends up needing.
             Rect viewportRect = GUILayoutUtility.GetRect(
-                0f, position.height, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+                0f, rowHeight, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             float contentWidth = Mathf.Max(0f, viewportRect.width - ScrollBarWidth);
             Rect contentRect = new Rect(0f, 0f, contentWidth, contentHeight);
 
