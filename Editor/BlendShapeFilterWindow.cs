@@ -854,9 +854,12 @@ namespace BlendShapeFilter
         {
             get
             {
+                // Light skins need a dark color to stand out on their near-white row background;
+                // dark skins need the opposite. Keep these separate rather than deriving one from
+                // the other so each mode remains legible on its native Unity UI palette.
                 return EditorGUIUtility.isProSkin
-                    ? new Color(1.00f, 0.70f, 0.25f, 1f)
-                    : new Color(0.80f, 0.45f, 0.00f, 1f);
+                    ? new Color(1.00f, 0.70f, 0.25f, 1f) // Bright amber on dark mode.
+                    : new Color(0.05f, 0.28f, 0.65f, 1f); // Deep blue on light mode.
             }
         }
 
