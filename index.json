@@ -61,6 +61,20 @@
           "vpmDependencies": {},
           "url": "https://github.com/roasunda/blendshapefilter-vpm/releases/download/v1.0.3/com.roasun.blendshapefilter-1.0.3.zip",
           "zipSHA256": "00a526a7c884a93314cd3ed155e2403a1e466350a35165ccc9c653259d7058b0"
+        },
+        "1.0.4": {
+          "name": "com.roasun.blendshapefilter",
+          "displayName": "BlendShape Filter",
+          "version": "1.0.4",
+          "unity": "2019.4",
+          "description": "Search, filter and edit BlendShapes in the Unity Editor. Find the shape key you need on a large avatar mesh in seconds instead of scrolling the Inspector.",
+          "author": {
+            "name": "roasun"
+          },
+          "license": "MIT",
+          "vpmDependencies": {},
+          "url": "https://github.com/roasunda/blendshapefilter-vpm/releases/download/v1.0.4/com.roasun.blendshapefilter-1.0.4.zip",
+          "zipSHA256": "af39f0078bc19a38fda77d4dade9d41053c2e3692ebb16042ddd1426ff8ef780"
         }
       }
     }
